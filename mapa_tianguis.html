@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa de la Colonia El Rosario</title>
+    <style>
+        body {
+            background-color: #497D83;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Ajusta la altura de la ventana */
+        }
+
+        h1 {
+            font-family: Arial, Helvetica, sans-serif;
+            color: aliceblue;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100% - 120px); 
+        }
+
+        #map {
+            height: 500px;
+            width: 1000px;
+            max-width: 100%;
+            border-radius: 15px;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column; /* Cambié de fila a columna */
+            align-items: center;
+            gap: 15px; /* Distancia entre los botones */
+            margin-top: 15px; /* Ajusté el margen superior */
+        }
+
+        .center-button {
+            padding: 10px 20px;
+            background-color: #5A876F;
+            color: #7CAFB6;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #7CAFB6;
+        }
+
+        .leaflet-container {
+            background-color: #497D83;
+        }
+
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+            background-color: #497D83;
+            color: #333;
+        }
+
+        .leaflet-popup-content {
+            font-size: 14px;
+        }
+
+        .leaflet-popup-content a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .leaflet-popup-content a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+</head>
+<body>
+    <h1>Ubicación de los Tianguis</h1>
+    <div class="container">
+        <div id="map"></div>
+    </div>
+    <div class="button-container">
+        <button class="center-button"><a href="">Regresar</a></button>
+        <button class="center-button" id="captureButton">Tomar Captura Completa</button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        function convertirCoordenadas(grados, minutos, segundos) {
+            return grados + (minutos / 60) + (segundos / 3600);
+        }
+        
+        var colores = ['red', 'blue', 'green', 'black', 'orange', 'grey', 'yellow'];
+        var coordenadas = [
+            {lat: convertirCoordenadas(19, 30, 42.0), lng: -convertirCoordenadas(99, 12, 12.8), nombre: "4", direccion: "El Rosario, Azcapotzalco, 02100 Ciudad de México, CDMX", link: "https://www.google.com/maps/place/19°30'42.0%22N+99°12'12.8%22W/@19.5116687,-99.2061335,17z/data=!3m1!4b1!4m4!3m3!8m2!3d19.5116687!4d-99.2035586?entry=ttu&g_ep=EgoyMDI0MTEyNC4xIKXMDSoASAFQAw%3D%3D"},
+            {lat: convertirCoordenadas(19, 30, 37.9), lng: -convertirCoordenadas(99, 12, 35.4), nombre: "1", direccion: "Herreros 64, El Rosario, Azcapotzalco, 02100 Ciudad de México, CDMX", link: "https://www.google.com/maps/place/19°30'27.0%22N+99°12'10.7%22W/@19.5074851,-99.2055466,17z/data=!3m1!4b1!4m4!3m3!8m2!3d19.5074851!4d-99.2029717?entry=ttu&g_ep=EgoyMDI0MTEyNC4xIKXMDSoASAFQAw%3D%3D"},
+            {lat: convertirCoordenadas(19, 30, 40.9), lng: -convertirCoordenadas(99, 12, 31.6), nombre: "2", direccion: "Herreros 142-156, El Rosario, Azcapotzalco, 02100 Ciudad de México, CDMX", link: "https://www.google.com/maps?q=19.510537726,-99.209845459"},
+            {lat: convertirCoordenadas(19, 30, 42.0), lng: -convertirCoordenadas(99, 12, 23.7), nombre: "3", direccion: "BELLE ÂME, Astronomía #1 U.H, El Rosario, 02100 Ciudad de México", link: "https://www.google.com/maps?q=19.511662631,-99.206579611"},
+            {lat: convertirCoordenadas(19, 30, 35.8), lng: -convertirCoordenadas(99, 12, 2.4), nombre: "5", direccion: "Calle Helio 37-17, El Rosario, Azcapotzalco, 02100 Ciudad de México, CDMX", link: "https://www.google.com/maps?q=19.509934343,-99.20066056"},
+            {lat: convertirCoordenadas(19, 30, 36.3), lng: -convertirCoordenadas(99, 11, 58.7), nombre: "6", direccion: "Argon 2, El Rosario, Azcapotzalco, 02100 Ciudad de México, CDMX", link: "https://www.google.com/maps?q=19.510081516,-99.199636872"},
+            {lat: convertirCoordenadas(19, 30, 27.0), lng: -convertirCoordenadas(99, 12, 10.7), nombre: "7", direccion: "Del Pescadito 10, El Rosario, Azcapotzalco, 02100 Ciudad de México, CDMX", link: "https://www.google.com/maps?q=19.507485141,-99.202971714"}
+        ];
+        
+        var map = L.map('map').setView([19.510, -99.205], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© Mapa de OpenStreetMap'
+        }).addTo(map);
+        
+        coordenadas.forEach(function(punto, index) {
+            var markerColor = L.icon({
+                iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${colores[index]}.png`,
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
+            
+            L.marker([punto.lat, punto.lng], {icon: markerColor})
+                .addTo(map)
+                .bindPopup(`Tianguis ${punto.nombre}: ${punto.direccion} <br> <br><a href="${punto.link}" target="_blank">¿Cómo Llegar?</a>`)
+                .on('click', function(e) {
+                    this.openPopup();
+                });
+        });
+        
+        function onLocationFound(e) {
+            var radius = e.accuracy / 2;
+            
+            L.circle(e.latlng, {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: radius
+            }).addTo(map);
+        }
+        
+        function onLocationError(e) {
+            alert(e.message);
+        }
+        
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+        map.locate({setView: true, maxZoom: 16});
+        
+        // Función para tomar la captura
+        document.getElementById('captureButton').addEventListener('click', () => {
+            // Solicitar captura de pantalla completa
+            navigator.mediaDevices.getDisplayMedia({ video: true })
+                .then((stream) => {
+                    // Crear un objeto video para capturar la imagen
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        video.play();
+
+                        // Crear un canvas y dibujar el contenido del video en él
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                        // Detener el stream de la pantalla
+                        stream.getTracks().forEach(track => track.stop());
+
+                        // Descargar la imagen capturada
+                        const link = document.createElement('a');
+                        link.download = 'captura_pantalla_completa.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    };
+                })
+                .catch((err) => {
+                    console.error('Error al capturar la pantalla:', err);
+                    alert('No se pudo capturar la pantalla. Asegúrate de permitir el acceso a la pantalla.');
+                });
+        });
+    </script>
+</body>
+</html>
